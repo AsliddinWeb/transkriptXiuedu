@@ -1,0 +1,90 @@
+# Django loyihasi uchun asosiy ignore fayllar
+*.log
+*.pot
+*.pyc
+
+__pycache__/
+core/__pycache__/
+settings_app/__pycache__/
+
+db.sqlite3
+media/
+staticfiles/
+env/
+venv/
+.venv/
+*.env
+.envrc
+*.secret
+
+# PyCharm IDE
+.idea/
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# Backup fayllar
+*.bak
+*.swp
+*.swo
+*.swn
+
+# Python kompilyatsiya qilingan fayllar
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+dist/
+downloads/
+*.egg-info/
+.installed.cfg
+*.egg
+*.manifest
+*.spec
+wheels/
+
+# Pip cache
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Test va coverage fayllari
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Celery
+celerybeat-schedule.*
+
+# mypy static typing
+.mypy_cache/
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# MkDocs
+/site/
+
+# Django migrations (faqat avtomatik yaratilganini o'chiramiz)
+*/migrations/*.pyc
+*/migrations/*.pyo
+*/migrations/__pycache__/
+*/migrations/*.py, !*/migrations/__init__.py
+
+# Boshqa IDE va muharrir fayllari
+*.sublime-workspace
+*.sublime-project
+sftp-config.json
