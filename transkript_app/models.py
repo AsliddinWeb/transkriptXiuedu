@@ -1,0 +1,88 @@
+from django.db import models
+
+import random
+import string
+
+class Fakultet(models.Model):
+    nomi = models.CharField(max_length=255, verbose_name="Fakultet nomi")
+
+    def __str__(self):
+        return self.nomi
+
+    class Meta:
+        verbose_name = "Fakultet"
+        verbose_name_plural = "Fakultetlar"
+
+class Yonalish(models.Model):
+    nomi = models.CharField(max_length=255, verbose_name="Yo'nalish nomi")
+    kodi = models.CharField(max_length=255, verbose_name="Yo'nalish kodi")
+
+    def __str__(self):
+        return f"{self.nomi} - {self.kodi}"
+
+    class Meta:
+        verbose_name = "Yo'nalish"
+        verbose_name_plural = "Yo'nalishlar"
+
+class OqishTuri(models.Model):
+    nomi = models.CharField(max_length=255, verbose_name="O'qish turi")
+
+    def __str__(self):
+        return self.nomi
+
+    class Meta:
+        verbose_name = "O'qish turi"
+        verbose_name_plural = "O'qish turlari"
+
+class OqishKursi(models.Model):
+    nomi = models.CharField(max_length=255, verbose_name="O'qish kursi")
+
+    def __str__(self):
+        return self.nomi
+
+    class Meta:
+        verbose_name = "O'qish kursi"
+        verbose_name_plural = "O'qish kurslari"
+
+class OqishTili(models.Model):
+    nomi = models.CharField(max_length=255, verbose_name="O'qish tili")
+
+    def __str__(self):
+        return self.nomi
+
+    class Meta:
+        verbose_name = "O'qish tili"
+        verbose_name_plural = "O'qish tillari"
+
+class Transkript(models.Model):
+    toliq_ism = models.CharField(max_length=255, verbose_name="To'liq ismi")
+    fakultet = models.ForeignKey(Fakultet, on_delete=models.CASCADE, verbose_name="Fakultet")
+    yonalish = models.ForeignKey(Yonalish, on_delete=models.CASCADE, verbose_name="Yo'nalish")
+
+    oqish_turi = models.ForeignKey(OqishTuri, on_delete=models.CASCADE, verbose_name="O'qish turi")
+    oqish_kursi = models.ForeignKey(OqishKursi, on_delete=models.CASCADE, verbose_name="O'qish kursi")
+    oqish_tili = models.ForeignKey(OqishTili, on_delete=models.CASCADE, verbose_name="O'qish tili")
+    tugatgan_yili = models.CharField(max_length=255, verbose_name="Tugatgan yili")
+    student_id = models.IntegerField(verbose_name="Student ID", unique=True, blank=True, null=True)
+
+    transkript_pdf = models.FileField(null=True, blank=True, verbose_name="Transkript PDF")
+
+    def __str__(self):
+        return self.toliq_ism
+
+    def generate_unique_student_id(self):
+        """ 6 xonali unikal student ID generatsiya qilish """
+        while True:
+            new_id = random.randint(100000, 999999)  # 6 xonali tasodifiy son yaratish
+            if not Transkript.objects.filter(student_id=new_id).exists():
+                return new_id
+
+    def save(self, *args, **kwargs):
+        """ Saqlashdan oldin student_id avtomatik ravishda yaratish """
+        if not self.student_id:
+            self.student_id = self.generate_unique_student_id()
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = "Transkript"
+        verbose_name_plural = "Transkriptlar"

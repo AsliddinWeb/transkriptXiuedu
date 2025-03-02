@@ -28,6 +28,8 @@ admin.site.index_title = "Dashboard"
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('', include('transkript_app.urls')),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
