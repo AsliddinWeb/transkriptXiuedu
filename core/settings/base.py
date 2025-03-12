@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+# Unfold
+
 # .env
 import os
 
@@ -33,7 +35,7 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+ALLOWED_HOSTS = ['*']
 print(ALLOWED_HOSTS)
 
 
@@ -42,6 +44,7 @@ print(ALLOWED_HOSTS)
 INSTALLED_APPS = [
     # Unfold
     'unfold',
+    'unfold.contrib.simple_history',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Global APPS
+    'simple_history',
 
     # Local APPS
     'settings_app',
@@ -65,6 +69,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # History
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -72,7 +79,7 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / '../templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -145,3 +152,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '../media/')
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Unfold settings

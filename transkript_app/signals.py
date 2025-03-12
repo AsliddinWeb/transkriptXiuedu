@@ -1,14 +1,25 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.conf import settings
+
 import os
 import subprocess
 from docx import Document
+
 import tempfile
 from django.core.files import File
 
-from docx.shared import Pt
+from docx.shared import Pt, Inches
 from docx.oxml.ns import qn
+
+# Env
+from dotenv import load_dotenv
+
+# loading env
+load_dotenv()
+
+# QR Code
+import qrcode
+from io import BytesIO
 
 
 from .models import Transkript
@@ -16,79 +27,85 @@ from .models import Transkript
 
 @receiver(post_save, sender=Transkript)
 def generate_transkript_pdf(sender, instance, created, **kwargs):
-    """
-    Transkript modeliga ma'lumot qo'shilganda yoki o'zgartirilganda
-    shablon.docx fayliga ma'lumotlarni to'ldirib, PDF formatga o'zgartiradi.
-    """
     try:
-        # To'g'ri yo'lni aniqlaymiz
-        base_dir = settings.BASE_DIR
-        template_path = os.path.join(base_dir, '../static', 'shablon.docx')
+        doc = Document(instance.yonalish.shablon_docx.path)
 
-        # Fayl mavjudligini tekshiramiz
-        if not os.path.exists(template_path):
-            print(f"Xatolik: Shablon fayl topilmadi: {template_path}")
-            # Agar fayl topilmasa, boshqa mumkin bo'lgan joylarda izlaymiz
-            alternative_paths = [
-                os.path.join(base_dir, 'staticfiles', 'shablon.docx'),
-                os.path.join(base_dir, 'media', 'shablon.docx'),
-                os.path.join(base_dir, 'templates', 'shablon.docx'),
-                os.path.join(base_dir, 'shablon.docx')
-            ]
+        # QR Code
 
-            for alt_path in alternative_paths:
-                if os.path.exists(alt_path):
-                    template_path = alt_path
-                    print(f"Shablon fayl topildi: {template_path}")
-                    break
-            else:
-                raise FileNotFoundError(
-                    f"Shablon.docx fayli topilmadi. Quyidagi joylarda qidirildi: {[template_path] + alternative_paths}")
+        base_url = "http://192.168.2.109:8000" if os.getenv("DJANGO_ENV") == "dev" else "https://as.uz"
 
-        # Shablonni ochish
-        doc = Document(template_path)
 
-        # Ma'lumotlarni to'ldirish
-        # Placeholder so'zlarni almashtirish
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=2,
+            border=3,
+        )
+        qr.add_data(f"{base_url}/checkdocuments/transcript/{instance.student_id}/")
+        qr.make(fit=True)
+
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+
+        # QR kodni saqlash uchun vaqtinchalik fayl
+        qr_io = BytesIO()
+        qr_img.save(qr_io, format='PNG')
+        qr_io.seek(0)
+
+        # QR kodni dokumentga qo'shish
+        doc.add_picture(qr_io, width=Inches(0.7))
+        site_url = doc.add_paragraph(f"{base_url}/checkdocuments/transcript/{instance.student_id}/")
+        site_url.style.font.size = Pt(7)
+        site_url.style.font.name = 'Calibri'
+        site_url.style._element.rPr.rFonts.set(qn('w:eastAsia'), 'Calibri')
+
         for paragraph in doc.paragraphs:
-            replace_text_in_paragraph(paragraph, '{{toliq_ism}}', instance.toliq_ism)
-            replace_text_in_paragraph(paragraph, '{{fakultet}}', instance.fakultet.nomi)
-            replace_text_in_paragraph(paragraph, '{{yonalish}}', instance.yonalish.nomi)
-            replace_text_in_paragraph(paragraph, '{{yonalish_kodi}}', instance.yonalish.kodi)
-            replace_text_in_paragraph(paragraph, '{{oqish_turi}}', instance.oqish_turi.nomi)
-            replace_text_in_paragraph(paragraph, '{{oqish_kursi}}', instance.oqish_kursi.nomi)
-            replace_text_in_paragraph(paragraph, '{{oqish_tili}}', instance.oqish_tili.nomi)
-            replace_text_in_paragraph(paragraph, '{{tugatgan_yili}}', instance.tugatgan_yili)
-            replace_text_in_paragraph(paragraph, '{{student_id}}', instance.student_id)
+            print("++++++")
+            print(paragraph.text)
+            print("++++++")
 
-        # Jadval ichidagi matnni almashtirish uchun (agar jadval bo'lsa)
+            replace_text_in_paragraph(paragraph, '{{full_name}}', instance.toliq_ism, 7)
+
         for table in doc.tables:
             for row in table.rows:
                 for cell in row.cells:
                     for paragraph in cell.paragraphs:
-                        replace_text_in_paragraph(paragraph, '{{toliq_ism}}', instance.toliq_ism)
-                        replace_text_in_paragraph(paragraph, '{{fakultet}}', instance.fakultet.nomi)
-                        replace_text_in_paragraph(paragraph, '{{yonalish}}', instance.yonalish.nomi)
-                        replace_text_in_paragraph(paragraph, '{{yonalish_kodi}}', instance.yonalish.kodi)
-                        replace_text_in_paragraph(paragraph, '{{oqish_turi}}', instance.oqish_turi.nomi)
-                        replace_text_in_paragraph(paragraph, '{{oqish_kursi}}', instance.oqish_kursi.nomi)
-                        replace_text_in_paragraph(paragraph, '{{oqish_tili}}', instance.oqish_tili.nomi)
-                        replace_text_in_paragraph(paragraph, '{{tugatgan_yili}}', instance.tugatgan_yili)
-                        replace_text_in_paragraph(paragraph, '{{student_id}}', instance.student_id)
+                        replace_text_in_paragraph(paragraph, '{{full_name}}', instance.toliq_ism, 7)
 
-        # Vaqtinchalik fayllarni saqlash uchun papka
+        for i, table in enumerate(doc.tables):
+            print(f"Table {i + 1}:")
+
+            for row in table.rows:
+                for cell in row.cells:
+                    # Agar cell ichida nested jadval bo'lsa
+                    if cell.tables:
+                        print("\n  Nested Table Found:")
+                        for j, nested_table in enumerate(cell.tables):
+                            print(f"  Nested Table {j + 1}:")
+                            for nested_row in nested_table.rows:
+                                for nested_cell in nested_row.cells:
+                                    # print(f"    {nested_cell.text}", end='\t')
+                                    # Nested cell ichidagi textni o'zgartirish
+                                    for paragraph in nested_cell.paragraphs:
+                                        replace_text_in_paragraph(paragraph, '{{table_1_fan_1_baxo}}', "88", 4)
+                                print()
+                        print()
+
+                    # Oddiy cell ichidagi textni o'zgartirish
+                    for paragraph in cell.paragraphs:
+                        # replace_text_in_paragraph(paragraph, '{{table_1_fan_1_baxo}}', "88", 4)
+                        replace_text_in_paragraph(paragraph, '{{full_name}}', "Asliddin", 7)
+
+                print()
+            print("\n" + "=" * 50 + "\n")
+
         with tempfile.TemporaryDirectory() as temp_dir:
-            # Docx faylni saqlash
-            temp_docx_path = os.path.join(temp_dir, f'transkript_{instance.student_id}.docx')
+
+            temp_docx_path = os.path.join(temp_dir, f'transcript_{instance.student_id}.docx')
             doc.save(temp_docx_path)
 
-            # Docx faylni PDF ga o'zgartirish (LibreOffice yordamida)
-            temp_pdf_path = os.path.join(temp_dir, f'transkript_{instance.student_id}.pdf')
+            temp_pdf_path = os.path.join(temp_dir, f'transcript_{instance.student_id}.pdf')
 
-            # LibreOffice CLI chaqirish
             try:
-                # Turli operatsion tizimlarda LibreOffice/soffice nomlanishi har xil bo'lishi mumkin
-                # Ushbu nomlarni sinab ko'ramiz
                 libreoffice_commands = [
                     "libreoffice", "soffice", "openoffice",
                     "/Applications/LibreOffice.app/Contents/MacOS/soffice",  # macOS uchun
@@ -104,8 +121,6 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
                         )
                         if result.returncode == 0:
                             success = True
-                            # LibreOffice output faylini aniqlaymiz
-                            # (ba'zida chiqish fayl nomi o'zgarishi mumkin)
                             pdf_filename = os.path.splitext(os.path.basename(temp_docx_path))[0] + ".pdf"
                             temp_pdf_path = os.path.join(temp_dir, pdf_filename)
                             break
@@ -115,18 +130,14 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
                 if not success:
                     raise Exception("LibreOffice/OpenOffice dasturini topa olmadik yoki ishga tushira olmadik")
 
-                # PDF faylni modelga saqlash
                 if os.path.exists(temp_pdf_path):
                     with open(temp_pdf_path, 'rb') as pdf_file:
-                        # transkript_pdf ni yangilash va recursive signal chaqirilishini oldini olish
                         instance.transkript_pdf.save(
                             f'transkript_{instance.student_id}.pdf',
                             File(pdf_file),
                             save=False
                         )
 
-                        # save() funksiyasini post_save signalni qayta ishga tushirmaslik uchun
-                        # o'chirib/o'zgartirib qo'yamiz
                         Transkript.objects.filter(id=instance.id).update(
                             transkript_pdf=instance.transkript_pdf.name
                         )
@@ -143,19 +154,25 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
         traceback.print_exc()
 
 
-def replace_text_in_paragraph(paragraph, placeholder, value):
+def replace_text_in_paragraph(paragraph, placeholder, value, size):
     """
     Paragraf ichidagi placeholder textni almashtirib beradi va Calibri 7 da formatlaydi.
     """
     if placeholder in paragraph.text:
-        # Placeholder ni topish va almashtirish
         paragraph.text = paragraph.text.replace(placeholder, str(value))
 
-        # Yangi matnni formatlash
         for run in paragraph.runs:
             if str(value) in run.text:
-                # Fontni Calibri ga o'zgartirish
                 run.font.name = 'Calibri'
-                run._element.rPr.rFonts.set(qn('w:eastAsia'), 'Calibri')  # East Asian font uchun
-                # Font o'lchamini 7 ga o'zgartirish
-                run.font.size = Pt(7)
+                run._element.rPr.rFonts.set(qn('w:eastAsia'), 'Calibri')
+
+                run.font.size = Pt(size)
+
+def remove_table(doc, table_index):
+    """
+    Word faylidagi berilgan indeksdagi jadvalni o'chiradi.
+    """
+    tables = doc.tables
+    if 0 <= table_index < len(tables):
+        tbl = tables[table_index]._element
+        tbl.getparent().remove(tbl)

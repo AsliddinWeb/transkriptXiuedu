@@ -1,7 +1,8 @@
 from django.db import models
 
 import random
-import string
+
+from simple_history.models import HistoricalRecords
 
 class Fakultet(models.Model):
     nomi = models.CharField(max_length=255, verbose_name="Fakultet nomi")
@@ -16,6 +17,7 @@ class Fakultet(models.Model):
 class Yonalish(models.Model):
     nomi = models.CharField(max_length=255, verbose_name="Yo'nalish nomi")
     kodi = models.CharField(max_length=255, verbose_name="Yo'nalish kodi")
+    shablon_docx = models.FileField(upload_to='shablons/', verbose_name="Shablon DOCX", null=True, blank=True)
 
     def __str__(self):
         return f"{self.nomi} - {self.kodi}"
@@ -67,6 +69,8 @@ class Transkript(models.Model):
 
     transkript_pdf = models.FileField(null=True, blank=True, verbose_name="Transkript PDF")
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return self.toliq_ism
 
@@ -86,3 +90,14 @@ class Transkript(models.Model):
     class Meta:
         verbose_name = "Transkript"
         verbose_name_plural = "Transkriptlar"
+
+class Fan(models.Model):
+    yonalish = models.ForeignKey(Yonalish, verbose_name="Yo'nalish", on_delete=models.CASCADE, related_name="fanlar")
+    nomi = models.CharField(max_length=255, verbose_name="Fan nomi")
+
+    def __str__(self):
+        return self.nomi
+
+    class Meta:
+        verbose_name = "Fan"
+        verbose_name_plural = "Fanlar"
