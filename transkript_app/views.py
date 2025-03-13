@@ -4,8 +4,8 @@ from django.http import Http404, FileResponse, HttpResponse
 from .models import Transkript
 
 def home_page(request):
-    return HttpResponse("Hello")
-    # return redirect('https://auezov.edu.kz/')
+    # return HttpResponse("Hello")
+    return redirect('https://auezov.edu.kz/')
 
 def check_transcript(request, student_id):
     transcript = get_object_or_404(Transkript, student_id=student_id)
