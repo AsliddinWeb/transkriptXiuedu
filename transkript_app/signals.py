@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+import logging
 import os
 import subprocess
 from docx import Document
@@ -21,6 +22,9 @@ load_dotenv()
 import qrcode
 from io import BytesIO
 
+# Logging sozlamalari
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 from .models import Transkript
 
@@ -30,9 +34,11 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
     try:
         doc = Document(instance.yonalish.shablon_docx.path)
 
+        logging.info("Transkript PDF yaratish jarayoni boshlandi.")
+
         # QR Code
 
-        base_url = "http://192.168.2.109:8000" if os.getenv("DJANGO_ENV") == "dev" else "https://as.uz"
+        base_url = "http://192.168.2.109:8000" if os.getenv("DJANGO_ENV") == "dev" else "https://auezovedu.kz"
 
 
         qr = qrcode.QRCode(
@@ -128,6 +134,7 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
                         continue
 
                 if not success:
+                    logging.error("LibreOffice/OpenOffice dasturini topa olmadik yoki ishga tushira olmadik")
                     raise Exception("LibreOffice/OpenOffice dasturini topa olmadik yoki ishga tushira olmadik")
 
                 if os.path.exists(temp_pdf_path):
@@ -142,13 +149,16 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
                             transkript_pdf=instance.transkript_pdf.name
                         )
                 else:
+                    logging.error(f"PDF fayl yaratilmadi: {temp_pdf_path}")
                     raise FileNotFoundError(f"PDF fayl yaratilmadi: {temp_pdf_path}")
 
             except Exception as conversion_error:
+                logging.error(f"PDF konvertatsiyasida xatolik: {conversion_error}")
                 print(f"PDF konvertatsiyasida xatolik: {conversion_error}")
                 raise
 
     except Exception as e:
+        logging.error(f"Transkript PDF yaratishda xatolik: {e}")
         print(f"Transkript PDF yaratishda xatolik: {e}")
         import traceback
         traceback.print_exc()
