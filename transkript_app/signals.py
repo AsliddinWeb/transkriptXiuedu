@@ -23,6 +23,9 @@ load_dotenv()
 import qrcode
 from io import BytesIO
 
+# Random
+import random
+
 # Logging sozlamalari
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -118,14 +121,410 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
                 'alignment': None,  # Default alignment
                 'bold': True  # Bold format
             },
+            '{{transcript_id}}': {
+                'value': 7400 + instance.id,
+                'size': 7,
+                'alignment': None,  # Default alignment
+                'bold': True  # Bold format
+            },
+        }
 
-            '{{table_1_fan_1_baxo}}': {
-                'value': "88",
+        # Barcha o'zgaruvchilarni yaratish
+        # 1-semestr
+        point_summa_1 = 0
+        ball_summa_1 = 0
+        for i in range(1, 13):
+            study_credit_data = "{{study_credit_1_" + f"{i}" + "}}"
+            study_credit = random.randint(3, 6)  # Kredit soatlarini tasodifiy tanlash
+            placeholders_config[study_credit_data] = {
+                'value': str(study_credit),
                 'size': 4,
                 'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
                 'bold': False  # Bold emas
             }
-            # Boshqa placeholderlar uchun shu formatda qo'shishingiz mumkin
+
+            ball_data = "{{ball_1_" + f"{i}" + "}}"
+            ball = random.randint(56, 95)  # Ballarni tasodifiy tanlash
+            placeholders_config[ball_data] = {
+                'value': str(ball),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Baholarni ballga qarab tanlash
+            if ball >= 90:
+                letter = 'C'
+            elif ball >= 85:
+                letter = 'B+'
+            elif ball >= 80:
+                letter = 'B'
+            elif ball >= 70:
+                letter = 'A+'
+            else:
+                letter = 'A'
+
+            ball_summa_1 += ball
+
+            letter_data = "{{letter_1_" + f"{i}" + "}}"
+            placeholders_config[letter_data] = {
+                'value': letter,
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Pointlar bahoga qarab hisoblanadi
+
+            if letter == 'C+':
+                point = round(random.uniform(4.75, 5.0), 2)  # 5 ballik tizimda A+ (4.75 - 5.0)
+            elif letter == 'C':
+                point = round(random.uniform(4.5, 4.74), 2)  # 5 ballik tizimda A (4.5 - 4.74)
+            elif letter == 'B+':
+                point = round(random.uniform(4.0, 4.49), 2)  # 5 ballik tizimda B+ (4.0 - 4.49)
+            elif letter == 'B':
+                point = round(random.uniform(3.5, 3.99), 2)  # 5 ballik tizimda B (3.5 - 3.99)
+            elif letter == 'A+':
+                point = round(random.uniform(3.0, 3.49), 2)  # 5 ballik tizimda C+ (3.0 - 3.49)
+            elif letter == 'A':
+                point = round(random.uniform(2.5, 2.99), 2)  # 5 ballik tizimda C (2.5 - 2.99)
+            elif letter == 'D+':
+                point = round(random.uniform(2.0, 2.49), 2)  # 5 ballik tizimda D+ (2.0 - 2.49)
+            else:
+                point = round(random.uniform(0.0, 1.99), 2)  # 5 ballik tizimda F (0.0 - 1.99)
+
+            point_summa_1 += point
+
+            point_data = "{{point_1_" + f"{i}" + "}}"
+            placeholders_config[point_data] = {
+                'value': str(point),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Traditsion baho ballarga qarab tanlanadi
+            if point >= 3.5:
+                traditional = "5(отлично)"
+            elif point >= 3.0:
+                traditional = "4(xорошо)"
+            else:
+                traditional = "3(удов)"
+
+            traditional_data = "{{traditional_1_" + f"{i}" + "}}"
+            placeholders_config[traditional_data] = {
+                'value': traditional,
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+        point_summa_1 = point_summa_1 / 12
+        ball_summa_1 = ball_summa_1 / 12
+
+        # 2-semestr
+        point_summa_2 = 0
+        ball_summa_2 = 0
+        for i in range(1, 9):
+            study_credit_data = "{{study_credit_2_" + f"{i}" + "}}"
+            study_credit = random.randint(3, 6)  # Kredit soatlarini tasodifiy tanlash
+            placeholders_config[study_credit_data] = {
+                'value': str(study_credit),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            ball_data = "{{ball_2_" + f"{i}" + "}}"
+            ball = random.randint(56, 95)  # Ballarni tasodifiy tanlash
+            placeholders_config[ball_data] = {
+                'value': str(ball),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Baholarni ballga qarab tanlash
+            if ball >= 90:
+                letter = 'C'
+            elif ball >= 85:
+                letter = 'B+'
+            elif ball >= 80:
+                letter = 'B'
+            elif ball >= 70:
+                letter = 'A+'
+            else:
+                letter = 'A'
+
+            ball_summa_2 += ball
+
+            letter_data = "{{letter_2_" + f"{i}" + "}}"
+            placeholders_config[letter_data] = {
+                'value': letter,
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Pointlar bahoga qarab hisoblanadi
+            if letter == 'C+':
+                point = round(random.uniform(4.75, 5.0), 2)  # 5 ballik tizimda A+ (4.75 - 5.0)
+            elif letter == 'C':
+                point = round(random.uniform(4.5, 4.74), 2)  # 5 ballik tizimda A (4.5 - 4.74)
+            elif letter == 'B+':
+                point = round(random.uniform(4.0, 4.49), 2)  # 5 ballik tizimda B+ (4.0 - 4.49)
+            elif letter == 'B':
+                point = round(random.uniform(3.5, 3.99), 2)  # 5 ballik tizimda B (3.5 - 3.99)
+            elif letter == 'A+':
+                point = round(random.uniform(3.0, 3.49), 2)  # 5 ballik tizimda C+ (3.0 - 3.49)
+            elif letter == 'A':
+                point = round(random.uniform(2.5, 2.99), 2)  # 5 ballik tizimda C (2.5 - 2.99)
+            elif letter == 'D+':
+                point = round(random.uniform(2.0, 2.49), 2)  # 5 ballik tizimda D+ (2.0 - 2.49)
+            else:
+                point = round(random.uniform(0.0, 1.99), 2)  # 5 ballik tizimda F (0.0 - 1.99)
+
+            point_summa_2 += point
+
+            point_data = "{{point_2_" + f"{i}" + "}}"
+            placeholders_config[point_data] = {
+                'value': str(point),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Traditsion baho ballarga qarab tanlanadi
+            if point >= 3.5:
+                traditional = "5(отлично)"
+            elif point >= 3.0:
+                traditional = "4(xорошо)"
+            else:
+                traditional = "3(удов)"
+
+            traditional_data = "{{traditional_2_" + f"{i}" + "}}"
+            placeholders_config[traditional_data] = {
+                'value': traditional,
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+        point_summa_2 = point_summa_2 / 8
+        ball_summa_2 = ball_summa_2 / 8
+
+        course_1_gpa = (point_summa_1 + point_summa_2) / 2
+        course_1_ball = (ball_summa_1 + ball_summa_2) / 2
+
+        placeholders_config['{{course_1_gpa}}'] = {
+            'value': str(round(course_1_gpa, 2)),
+            'size': 4,
+            'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+            'bold': False  # Bold emas
+        }
+        placeholders_config['{{course_1_ball}}'] = {
+            'value': str(int(course_1_ball)),
+            'size': 4,
+            'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+            'bold': False  # Bold emas
+        }
+
+        # 3-semestr
+        point_summa_3 = 0
+        ball_summa_3 = 0
+        for i in range(1, 13):
+            study_credit_data = "{{study_credit_3_" + f"{i}" + "}}"
+            study_credit = random.randint(3, 6)  # Kredit soatlarini tasodifiy tanlash
+            placeholders_config[study_credit_data] = {
+                'value': str(study_credit),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            ball_data = "{{ball_3_" + f"{i}" + "}}"
+            ball = random.randint(56, 95)  # Ballarni tasodifiy tanlash
+            placeholders_config[ball_data] = {
+                'value': str(ball),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Baholarni ballga qarab tanlash
+            if ball >= 90:
+                letter = 'C'
+            elif ball >= 85:
+                letter = 'B+'
+            elif ball >= 80:
+                letter = 'B'
+            elif ball >= 70:
+                letter = 'A+'
+            else:
+                letter = 'A'
+
+            ball_summa_3 += ball
+
+            letter_data = "{{letter_3_" + f"{i}" + "}}"
+            placeholders_config[letter_data] = {
+                'value': letter,
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Pointlar bahoga qarab hisoblanadi
+            if letter == 'C+':
+                point = round(random.uniform(4.75, 5.0), 2)  # 5 ballik tizimda A+ (4.75 - 5.0)
+            elif letter == 'C':
+                point = round(random.uniform(4.5, 4.74), 2)  # 5 ballik tizimda A (4.5 - 4.74)
+            elif letter == 'B+':
+                point = round(random.uniform(4.0, 4.49), 2)  # 5 ballik tizimda B+ (4.0 - 4.49)
+            elif letter == 'B':
+                point = round(random.uniform(3.5, 3.99), 2)  # 5 ballik tizimda B (3.5 - 3.99)
+            elif letter == 'A+':
+                point = round(random.uniform(3.0, 3.49), 2)  # 5 ballik tizimda C+ (3.0 - 3.49)
+            elif letter == 'A':
+                point = round(random.uniform(2.5, 2.99), 2)  # 5 ballik tizimda C (2.5 - 2.99)
+            elif letter == 'D+':
+                point = round(random.uniform(2.0, 2.49), 2)  # 5 ballik tizimda D+ (2.0 - 2.49)
+            else:
+                point = round(random.uniform(0.0, 1.99), 2)  # 5 ballik tizimda F (0.0 - 1.99)
+
+            point_summa_3 += point
+
+            point_data = "{{point_3_" + f"{i}" + "}}"
+            placeholders_config[point_data] = {
+                'value': str(point),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Traditsion baho ballarga qarab tanlanadi
+            if point >= 3.5:
+                traditional = "5(отлично)"
+            elif point >= 3.0:
+                traditional = "4(xорошо)"
+            else:
+                traditional = "3(удов)"
+
+            traditional_data = "{{traditional_3_" + f"{i}" + "}}"
+            placeholders_config[traditional_data] = {
+                'value': traditional,
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+        point_summa_3 = point_summa_3 / 12
+        ball_summa_3 = ball_summa_3 / 12
+
+        # 4-semestr
+        point_summa_4 = 0
+        ball_summa_4 = 0
+        for i in range(1, 9):
+            study_credit_data = "{{study_credit_4_" + f"{i}" + "}}"
+            study_credit = random.randint(3, 6)  # Kredit soatlarini tasodifiy tanlash
+            placeholders_config[study_credit_data] = {
+                'value': str(study_credit),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            ball_data = "{{ball_4_" + f"{i}" + "}}"
+            ball = random.randint(56, 95)  # Ballarni tasodifiy tanlash
+            placeholders_config[ball_data] = {
+                'value': str(ball),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Baholarni ballga qarab tanlash
+            if ball >= 90:
+                letter = 'C'
+            elif ball >= 85:
+                letter = 'B+'
+            elif ball >= 80:
+                letter = 'B'
+            elif ball >= 70:
+                letter = 'A+'
+            else:
+                letter = 'A'
+
+            ball_summa_4 += ball
+
+            letter_data = "{{letter_4_" + f"{i}" + "}}"
+            placeholders_config[letter_data] = {
+                'value': letter,
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Pointlar bahoga qarab hisoblanadi
+            if letter == 'C+':
+                point = round(random.uniform(4.75, 5.0), 2)  # 5 ballik tizimda A+ (4.75 - 5.0)
+            elif letter == 'C':
+                point = round(random.uniform(4.5, 4.74), 2)  # 5 ballik tizimda A (4.5 - 4.74)
+            elif letter == 'B+':
+                point = round(random.uniform(4.0, 4.49), 2)  # 5 ballik tizimda B+ (4.0 - 4.49)
+            elif letter == 'B':
+                point = round(random.uniform(3.5, 3.99), 2)  # 5 ballik tizimda B (3.5 - 3.99)
+            elif letter == 'A+':
+                point = round(random.uniform(3.0, 3.49), 2)  # 5 ballik tizimda C+ (3.0 - 3.49)
+            elif letter == 'A':
+                point = round(random.uniform(2.5, 2.99), 2)  # 5 ballik tizimda C (2.5 - 2.99)
+            elif letter == 'D+':
+                point = round(random.uniform(2.0, 2.49), 2)  # 5 ballik tizimda D+ (2.0 - 2.49)
+            else:
+                point = round(random.uniform(0.0, 1.99), 2)  # 5 ballik tizimda F (0.0 - 1.99)
+
+            point_summa_4 += point
+
+            point_data = "{{point_4_" + f"{i}" + "}}"
+            placeholders_config[point_data] = {
+                'value': str(point),
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+            # Traditsion baho ballarga qarab tanlanadi
+            if point >= 3.5:
+                traditional = "5(отлично)"
+            elif point >= 3.0:
+                traditional = "4(xорошо)"
+            else:
+                traditional = "3(удов)"
+
+            traditional_data = "{{traditional_4_" + f"{i}" + "}}"
+            placeholders_config[traditional_data] = {
+                'value': traditional,
+                'size': 4,
+                'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+                'bold': False  # Bold emas
+            }
+
+        point_summa_4 = point_summa_4 / 8
+        ball_summa_4 = ball_summa_4 / 8
+
+        course_2_gpa = (point_summa_3 + point_summa_4) / 2
+        course_2_ball = (ball_summa_3 + ball_summa_4) / 2
+
+        placeholders_config['{{course_2_gpa}}'] = {
+            'value': str(round(course_2_gpa, 2)),
+            'size': 4,
+            'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+            'bold': False  # Bold emas
+        }
+        placeholders_config['{{course_2_ball}}'] = {
+            'value': str(int(course_2_ball)),
+            'size': 4,
+            'alignment': WD_ALIGN_PARAGRAPH.CENTER,  # Markaz alignment
+            'bold': False  # Bold emas
         }
 
         # Barcha paragraflarni tekshirish va placeholder'larni almashtirish

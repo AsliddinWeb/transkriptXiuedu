@@ -41,8 +41,14 @@ class TranskriptAdmin(ModelAdmin, SimpleHistoryAdmin):
 
     def pdf_link(self, obj):
         if obj.transkript_pdf:
-            return mark_safe(f'<a class="btn btn-blue" href="{obj.transkript_pdf.url}" target="_blank">PDF yuklash</a>')
-        return "PDF yo'q"
+            return mark_safe(f'''
+                <a href="{obj.transkript_pdf.url}" target="_blank" class="
+                    bg-primary-600 block border border-transparent font-medium px-3 py-2 rounded text-white w-full lg:w-auto text-center
+                ">
+                    ✅ PDF yuklash
+                </a>
+            ''')
+        return '<span style="color: red;">PDF yo‘q</span>'
 
     pdf_link.short_description = "Transkript PDF"
 
