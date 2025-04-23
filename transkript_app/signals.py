@@ -548,6 +548,13 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
             'bold': False  # Bold
         }
 
+        placeholders_config['{{transcript_year}}'] = {
+            'value': instance.year,
+            'size': 7,
+            'alignment': False,
+            'bold': False  # Bold
+        }
+
         # Barcha paragraflarni tekshirish va placeholder'larni almashtirish
         for paragraph in doc.paragraphs:
             replace_placeholders_with_formatting(paragraph, placeholders_config)
