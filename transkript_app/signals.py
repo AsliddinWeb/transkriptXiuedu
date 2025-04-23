@@ -527,6 +527,27 @@ def generate_transkript_pdf(sender, instance, created, **kwargs):
             'bold': False  # Bold emas
         }
 
+        placeholders_config['{{total_ball}}'] = {
+            'value': str(int(course_1_ball + course_2_ball)),
+            'size': 7,
+            'alignment': False,
+            'bold': True  # Bold
+        }
+
+        placeholders_config['{{aw_gpa}}'] = {
+            'value': str(round(((course_1_gpa + course_2_gpa) / 2), 2)),
+            'size': 7,
+            'alignment': False,
+            'bold': True  # Bold
+        }
+
+        placeholders_config['{{total_subjects}}'] = {
+            'value': str(12 + 12 + 8 + 8),
+            'size': 7,
+            'alignment': False,
+            'bold': False  # Bold
+        }
+
         # Barcha paragraflarni tekshirish va placeholder'larni almashtirish
         for paragraph in doc.paragraphs:
             replace_placeholders_with_formatting(paragraph, placeholders_config)
