@@ -23,6 +23,37 @@ def check_transcript(request, student_id):
 
     return FileResponse(transcript.transkript_pdf.open('rb'), filename=f"{transcript.transkript_pdf}")
 
+
+def latin_to_cyrillic(text):
+    mapping = {
+        "a": "а", "b": "б", "d": "д", "e": "е", "f": "ф", "g": "г",
+        "h": "ҳ", "i": "и", "j": "ж", "k": "к", "l": "л", "m": "м",
+        "n": "н", "o": "о", "p": "п", "q": "қ", "r": "р", "s": "с",
+        "t": "т", "u": "у", "v": "в", "x": "х", "y": "й", "z": "з",
+        "ʼ": "ъ", "’": "ъ", "'": "ъ", " ": " ",
+        "sh": "ш", "ch": "ч", "ng": "нг", "ya": "я", "yo": "ё",
+        "yu": "ю", "o‘": "ў", "g‘": "ғ", "ts": "ц",
+    }
+
+    # Oldin uzoq harflarni tekshiramiz
+    complex = ["sh", "ch", "ng", "ya", "yo", "yu", "o‘", "g‘", "ts"]
+    text = text.lower()
+    result = ""
+    i = 0
+    while i < len(text):
+        match = False
+        for c in complex:
+            if text[i:i+len(c)] == c:
+                result += mapping[c]
+                i += len(c)
+                match = True
+                break
+        if not match:
+            result += mapping.get(text[i], text[i])
+            i += 1
+    return result.capitalize()
+
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def all_create_view(request):
@@ -51,7 +82,12 @@ def all_create_view(request):
 
             for index, row in df.iterrows():
                 try:
-                    toliq_ism = f"{row['passport__third_name']} {row['passport__first_name']} {row['passport__second_name']}"
+                    third = latin_to_cyrillic(row['passport__third_name'])
+                    first = latin_to_cyrillic(row['passport__first_name'])
+                    second = latin_to_cyrillic(row['passport__second_name'])
+
+                    toliq_ism = f"{third} {first} {second}"
+
                     transkript = Transkript(
                         toliq_ism=toliq_ism,
                         fakultet=Fakultet.objects.get(pk=fakultet_id),
