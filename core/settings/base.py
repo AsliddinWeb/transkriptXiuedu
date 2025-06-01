@@ -164,6 +164,7 @@ UNFOLD = {
             "icon": "diamond",
             "title": "Excel orqali yaratish",
             "link": "/transkript/all-create/",
+            "target": "_blank",
         },
     ],
 }
