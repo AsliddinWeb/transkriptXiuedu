@@ -65,51 +65,50 @@ def all_create_view(request):
 
     if request.method == 'POST' and request.FILES.get('excel_file'):
         excel_file: InMemoryUploadedFile = request.FILES['excel_file']
-        created_count = 0
+        created_objects = []
         error_count = 0
         error_rows = []
 
         try:
             df = pd.read_excel(excel_file)
 
-            fakultet_id = int(request.POST.get('fakultet'))
-            yonalish_id = int(request.POST.get('yonalish'))
-            oqish_turi_id = int(request.POST.get('oqish_turi'))
-            kurs_id = int(request.POST.get('kurs'))
-            til_id = int(request.POST.get('til'))
+            fakultet = Fakultet.objects.get(pk=int(request.POST.get('fakultet')))
+            yonalish = Yonalish.objects.get(pk=int(request.POST.get('yonalish')))
+            oqish_turi = OqishTuri.objects.get(pk=int(request.POST.get('oqish_turi')))
+            kurs = OqishKursi.objects.get(pk=int(request.POST.get('kurs')))
+            til = OqishTili.objects.get(pk=int(request.POST.get('til')))
             tugatgan_yili = request.POST.get('tugatgan_yili') or "2022"
             year = request.POST.get('year') or "24.08.2022"
 
             for index, row in df.iterrows():
                 try:
-                    third = latin_to_cyrillic(row['passport__third_name'])
-                    first = latin_to_cyrillic(row['passport__first_name'])
-                    second = latin_to_cyrillic(row['passport__second_name'])
-
+                    third = latin_to_cyrillic(str(row['passport__third_name']).strip())
+                    first = latin_to_cyrillic(str(row['passport__first_name']).strip())
+                    second = latin_to_cyrillic(str(row['passport__second_name']).strip())
                     toliq_ism = f"{third} {first} {second}"
 
-                    transkript = Transkript(
+                    obj = Transkript(
                         toliq_ism=toliq_ism,
-                        fakultet=Fakultet.objects.get(pk=fakultet_id),
-                        yonalish=Yonalish.objects.get(pk=yonalish_id),
-                        oqish_turi=OqishTuri.objects.get(pk=oqish_turi_id),
-                        oqish_kursi=OqishKursi.objects.get(pk=kurs_id),
-                        oqish_tili=OqishTili.objects.get(pk=til_id),
+                        fakultet=fakultet,
+                        yonalish=yonalish,
+                        oqish_turi=oqish_turi,
+                        oqish_kursi=kurs,
+                        oqish_tili=til,
                         tugatgan_yili=tugatgan_yili,
                         year=year
                     )
-                    transkript.save()
-                    created_count += 1
+                    created_objects.append(obj)
                 except Exception as e:
                     error_count += 1
-                    error_rows.append(f"{index + 2} - {e}")  # 2 chi qator deb qaraladi, header +1
+                    error_rows.append(f"{index + 2} - {e}")
 
-            if created_count:
-                messages.success(request, f"✅ {created_count} ta transkript muvaffaqiyatli yaratildi.")
+            if created_objects:
+                Transkript.objects.bulk_create(created_objects, batch_size=1000)
+                messages.success(request, f"✅ {len(created_objects)} ta transkript muvaffaqiyatli yaratildi.")
             if error_count:
-                messages.error(request, f"❌ {error_count} ta xatolik yuz berdi.")
-                for err in error_rows:
-                    messages.warning(request, f"⚠️ Qator {err}")
+                messages.error(request, f"❌ {error_count} ta qatorda xatolik yuz berdi.")
+                for err in error_rows[:5]:  # faqat bir nechta xatoni ko‘rsatamiz
+                    messages.warning(request, f"⚠️ Qator: {err}")
 
         except Exception as e:
             messages.error(request, f"❌ Umumiy xatolik: {str(e)}")
