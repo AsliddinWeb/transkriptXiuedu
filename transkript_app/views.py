@@ -54,7 +54,7 @@ def latin_to_russian_alifbo(text):
             result += mapping.get(text[i], text[i])
             i += 1
 
-    return result
+    return result.capitalize()
 
 
 
