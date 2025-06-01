@@ -155,6 +155,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '../media/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Unfold settings
+UNFOLD = {
+    "SITE_TITLE": "Transcript",
+    "SITE_HEADER": "Transcript dashboard",
+    "SITE_SUBHEADER": "By: AsliddinWeb",
+    "SITE_DROPDOWN": [
+        {
+            "icon": "diamond",
+            "title": "Excel orqali yaratish",
+            "link": "/transkript/all-create/",
+        },
+    ],
+}
 
 # Logging settings
 # LOGGING = {

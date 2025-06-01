@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>Transkriptlar yuklash</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-xl rounded-lg">
+        <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">Excel orqali Transkriptlarni Yuklash</h1>
+
+        {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                    <div class="p-3 rounded text-sm font-medium
+                        {% if message.tags == 'success' %} bg-green-100 text-green-700
+                        {% elif message.tags == 'error' %} bg-red-100 text-red-700
+                        {% elif message.tags == 'warning' %} bg-yellow-100 text-yellow-700
+                        {% else %} bg-gray-100 text-gray-800 {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Fakultet -->
+            <div>
+                <label for="fakultet" class="block text-sm font-medium text-gray-700 mb-1">Fakultet</label>
+                <select name="fakultet" id="fakultet" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for f in fakultetlar %}
+                        <option value="{{ f.id }}">{{ f.nomi }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Yo'nalish -->
+            <div>
+                <label for="yonalish" class="block text-sm font-medium text-gray-700 mb-1">Yo'nalish</label>
+                <select name="yonalish" id="yonalish" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for y in yonalishlar %}
+                        <option value="{{ y.id }}">{{ y.nomi }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- O'qish turi -->
+            <div>
+                <label for="oqish_turi" class="block text-sm font-medium text-gray-700 mb-1">O'qish turi</label>
+                <select name="oqish_turi" id="oqish_turi" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for o in oqish_turlari %}
+                        <option value="{{ o.id }}">{{ o.nomi }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Kurs -->
+            <div>
+                <label for="kurs" class="block text-sm font-medium text-gray-700 mb-1">Kurs</label>
+                <select name="kurs" id="kurs" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for k in kurslar %}
+                        <option value="{{ k.id }}">{{ k.nomi }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Til -->
+            <div>
+                <label for="til" class="block text-sm font-medium text-gray-700 mb-1">O'qish tili</label>
+                <select name="til" id="til" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {% for t in tillar %}
+                        <option value="{{ t.id }}">{{ t.nomi }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Tugatgan yili -->
+            <div>
+                <label for="tugatgan_yili" class="block text-sm font-medium text-gray-700 mb-1">O'qishga kirgan yili</label>
+                <input type="text" name="tugatgan_yili" id="tugatgan_yili" value="2022" placeholder="Masalan: 2022" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Year -->
+            <div>
+                <label for="year" class="block text-sm font-medium text-gray-700 mb-1">Sanani kiriting</label>
+                <input type="text" name="year" id="year" value="24.08.2022" placeholder="Masalan: 24.08.2022" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Excel fayl -->
+            <div>
+                <label for="excel_file" class="block text-sm font-medium text-gray-700 mb-1">Excel fayl yuklang</label>
+                <input type="file" name="excel_file" id="excel_file" accept=".xlsx, .xls" required class="w-full border border-gray-300 rounded px-3 py-2 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+            </div>
+
+            <!-- Submit -->
+            <div class="pt-4">
+                <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 transition duration-200">Yuklash</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

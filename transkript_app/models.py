@@ -64,9 +64,9 @@ class Transkript(models.Model):
     oqish_turi = models.ForeignKey(OqishTuri, on_delete=models.CASCADE, verbose_name="O'qish turi")
     oqish_kursi = models.ForeignKey(OqishKursi, on_delete=models.CASCADE, verbose_name="O'qish kursi")
     oqish_tili = models.ForeignKey(OqishTili, on_delete=models.CASCADE, verbose_name="O'qish tili")
-    tugatgan_yili = models.CharField(max_length=255, verbose_name="Tugatgan yili")
+    tugatgan_yili = models.CharField(max_length=255, default="2022", verbose_name="O'qishga kirgan yili")
     student_id = models.IntegerField(verbose_name="Student ID", unique=True, blank=True, null=True)
-    year = models.CharField(max_length=255, default="20.07.2022")
+    year = models.CharField(max_length=255, default="24.08.2022")
 
     transkript_pdf = models.FileField(null=True, blank=True, verbose_name="Transkript PDF")
 
