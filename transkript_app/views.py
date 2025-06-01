@@ -30,13 +30,12 @@ def latin_to_cyrillic(text):
         "h": "ҳ", "i": "и", "j": "ж", "k": "к", "l": "л", "m": "м",
         "n": "н", "o": "о", "p": "п", "q": "қ", "r": "р", "s": "с",
         "t": "т", "u": "у", "v": "в", "x": "х", "y": "й", "z": "з",
-        "ʼ": "ъ", "’": "ъ", "'": "ъ", " ": " ",
+        "ʼ": "ъ", "'": "ъ", "'": "ъ", " ": " ",
         "sh": "ш", "ch": "ч", "ng": "нг", "ya": "я", "yo": "ё",
-        "yu": "ю", "o‘": "ў", "g‘": "ғ", "ts": "ц",
+        "yu": "ю", "o'": "ў", "g'": "ғ", "ts": "ц",
     }
 
-    # Oldin uzoq harflarni tekshiramiz
-    complex = ["sh", "ch", "ng", "ya", "yo", "yu", "o‘", "g‘", "ts"]
+    complex = ["sh", "ch", "ng", "ya", "yo", "yu", "o'", "g'", "ts"]
     text = text.lower()
     result = ""
     i = 0
@@ -104,14 +103,14 @@ def all_create_view(request):
 
             if created_objects:
                 Transkript.objects.bulk_create(created_objects, batch_size=1000)
-                messages.success(request, f"✅ {len(created_objects)} ta transkript muvaffaqiyatli yaratildi.")
+                messages.success(request, f"✅ {len(created_objects)} транскриптов успешно создано.")
             if error_count:
-                messages.error(request, f"❌ {error_count} ta qatorda xatolik yuz berdi.")
-                for err in error_rows[:5]:  # faqat bir nechta xatoni ko‘rsatamiz
-                    messages.warning(request, f"⚠️ Qator: {err}")
+                messages.error(request, f"❌ В {error_count} строках произошли ошибки.")
+                for err in error_rows[:5]:  # показываем только несколько ошибок
+                    messages.warning(request, f"⚠️ Строка: {err}")
 
         except Exception as e:
-            messages.error(request, f"❌ Umumiy xatolik: {str(e)}")
+            messages.error(request, f"❌ Общая ошибка: {str(e)}")
 
         return redirect('all_create_transkript')
 
