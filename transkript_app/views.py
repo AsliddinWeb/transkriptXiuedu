@@ -24,33 +24,38 @@ def check_transcript(request, student_id):
     return FileResponse(transcript.transkript_pdf.open('rb'), filename=f"{transcript.transkript_pdf}")
 
 
-def latin_to_cyrillic(text):
+def latin_to_russian_alifbo(text):
     mapping = {
+        "sh": "ш", "ch": "ч", "ya": "я", "yo": "ё", "yu": "ю",
+        "ts": "ц", "ng": "нг",
+        "o‘": "у", "o'": "у", "o`": "у",
+        "g‘": "г", "g'": "г", "g`": "г",
         "a": "а", "b": "б", "d": "д", "e": "е", "f": "ф", "g": "г",
-        "h": "ҳ", "i": "и", "j": "ж", "k": "к", "l": "л", "m": "м",
-        "n": "н", "o": "о", "p": "п", "q": "қ", "r": "р", "s": "с",
-        "t": "т", "u": "у", "v": "в", "x": "х", "y": "й", "z": "з",
-        "ʼ": "ъ", "'": "ъ", "'": "ъ", " ": " ",
-        "sh": "ш", "ch": "ч", "ng": "нг", "ya": "я", "yo": "ё",
-        "yu": "ю", "o'": "ў", "g'": "ғ", "ts": "ц",
+        "h": "х", "i": "и", "j": "ж", "k": "к", "l": "л", "m": "м",
+        "n": "н", "o": "о", "p": "п", "q": "к", "r": "р", "s": "с",
+        "t": "т", "u": "у", "v": "в", "x": "кс", "y": "й", "z": "з",
+        "'": "", "`": "", "ʼ": "", "’": "", " ": " ",
     }
 
-    complex = ["sh", "ch", "ng", "ya", "yo", "yu", "o'", "g'", "ts"]
+    complex = ["sh", "ch", "ng", "ya", "yo", "yu", "ts", "o‘", "o'", "o`", "g‘", "g'", "g`"]
+
     text = text.lower()
     result = ""
     i = 0
     while i < len(text):
-        match = False
+        matched = False
         for c in complex:
             if text[i:i+len(c)] == c:
                 result += mapping[c]
                 i += len(c)
-                match = True
+                matched = True
                 break
-        if not match:
+        if not matched:
             result += mapping.get(text[i], text[i])
             i += 1
-    return result.capitalize()
+
+    return result
+
 
 
 @login_required
@@ -81,9 +86,9 @@ def all_create_view(request):
 
             for index, row in df.iterrows():
                 try:
-                    third = latin_to_cyrillic(str(row['passport__third_name']).strip())
-                    first = latin_to_cyrillic(str(row['passport__first_name']).strip())
-                    second = latin_to_cyrillic(str(row['passport__second_name']).strip())
+                    third = latin_to_russian_alifbo(str(row['passport__third_name']).strip())
+                    first = latin_to_russian_alifbo(str(row['passport__first_name']).strip())
+                    second = latin_to_russian_alifbo(str(row['passport__second_name']).strip())
                     toliq_ism = f"{third} {first} {second}"
 
                     obj = Transkript(
